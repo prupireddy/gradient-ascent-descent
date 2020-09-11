@@ -1,0 +1,346 @@
+var a;
+var b;
+var c;
+var d;
+var e;
+var f;
+var g;
+var i;
+var j;
+var k;
+var l;
+var m;
+var n;
+var o;
+var p;
+var q;
+var r;
+//Declaring the other Variables
+var minimumOutputs=[];
+var variablesValsForMin =[];
+var maximumOutputs=[];
+var variablesValsForMax = [];
+var varValues= [];
+var partial=[];
+var gradient=[];
+var resultAfterh;
+var resultBeforeh;
+var h=0.0001;
+var tempArray;
+var actualVariables=[];
+var variableInput;
+var actualfunction;
+var TrueActualFunction;
+var finalOutput;
+var globalMinimum;
+var globalMaximum;
+var globalMinIndex;
+var globalMaxIndex;
+var globalMinVarVals;
+var globalMaxVarVals;
+var minimumString = "";
+var maximumString = "";
+var DescentRate;
+var Trials;
+var Range;
+var Iterations;
+var pranav= false;
+
+//This Finds the Index of a Certain Number in an array
+function findIndexOf(array,number){
+  for (p=0; p<array.length;p++){
+    if (number == array[p]){
+      return p;
+    }
+    else {continue;}
+  }
+}
+  
+//This Gets all the User Inputs
+function getInputs(){
+  //Turning the "Names of Variables" Input into an array of chars without spaces
+  variableInput = getText("text_input3");
+  actualVariables = splitter(variableInput,actualVariables);
+  actualVariables= noSpace(actualVariables);
+  //Getting the Function (one to substitute values into and one to reset to)
+  actualfunction=getText("function");
+  TrueActualFunction=getText("function");
+  console.log("The Variables are " + actualVariables);
+  console.log("The function is " + actualfunction);
+  DescentRate=getNumber("text_input2");
+  console.log("Descent Rate is " + DescentRate);
+  Trials=getNumber("text_input4");
+  console.log("Number of Trials " + Trials);
+  Range=getNumber("text_input5");
+  console.log("The Initial Value Range is " + Range);
+  Iterations=getNumber("text_input6");
+  console.log("The Number of Iterations is " + Iterations);
+}
+
+//This Function breaks a string into an array of characters
+function splitter(string1,arrayName1){
+   arrayName1=[];
+   for (b=0;b<string1.length; b++){
+     insertItem(arrayName1,b,string1.substring(b,b+1));
+     }
+   return arrayName1;
+}
+
+//This takes out the spaces from an array 
+function noSpace(arrayName2){
+for (a=0; a< arrayName2.length; a++){
+   if (arrayName2[a] === ""|| arrayName2[a] === " "){
+     removeItem(arrayName2, a);
+     }
+ }
+  return arrayName2;
+}
+
+//The Function Replaces a Certain Character within a string with a Number
+function replace(string1,character,number){
+    tempArray=splitter(string1,tempArray);
+    for (c=0; c< tempArray.length; c++){
+     if(tempArray[c]===character){
+       tempArray[c]= parseFloat(number);
+     }
+     else{continue;}
+   }
+     string1 = tempArray[0];
+   for (d=1; d<tempArray.length; d++){
+     string1= string1 + tempArray[d];
+   }
+   
+   return string1;
+}
+//array1 is the array with all the variables
+//array2 is the values of the variables
+
+//The Creates the Array with all the Values of the Variables
+function CreateVarValues(array1,array2){
+     array2=[];
+  for (e=0; e< array1.length; e++){
+    var newItem= randomNumber(-Range,Range);
+    insertItem(array2,e,newItem);
+   }
+   return array2;
+  }
+
+//This adds the variable h to the Variable Values for a certain Index
+function pointPlusH (index){
+  varValues[index]=parseFloat(varValues[index])+h;
+  return varValues;
+}  
+//This Substracts the h from the array at a certain index
+function pointMinusH(index){
+  varValues[index]= parseFloat(varValues[index])-h;
+  return varValues;
+}
+
+
+
+
+
+
+
+
+//This Calculates the Gradient at a certain point
+function gradientCalculator(function1,array1,array2){
+    function1=TrueActualFunction;
+   for(f=0; f<array1.length; f++){
+    function1 = replace (function1, array1[f], parseFloat(array2[f]));
+    console.log("Variable Name is " + array1[f]);
+    console.log("Variables Value is " + array2[f]);
+    console.log("After Replacement is " + function1);
+   }
+
+    resultBeforeh=parseFloat(eval(function1));
+  for(g=0;g<array1.length; g++){
+     function1=TrueActualFunction;
+     array2 = pointPlusH(g);
+    for(i=0; i<array1.length; i++){
+    var temporary=parseFloat(array2[i]);
+    function1= replace (function1, array1[i],temporary);
+    console.log("The Name of the variable is " + array1[i]);
+    console.log("The Value of the variable is " + temporary);
+    console.log("The function after h is "+ function1);
+    }
+    resultAfterh= parseFloat(eval(function1));
+    partial=DescentRate*(parseFloat((resultAfterh-resultBeforeh)/h));
+    insertItem(gradient,g,partial);
+    array2 =pointMinusH(g);
+  }   
+  return gradient;
+}
+
+//Gradient Descent Function
+function gradDescent(){
+  //Creating Initial Values of the Variables and Finding the Initial Function Ouput Value
+   varValues= CreateVarValues (actualVariables, varValues);
+   console.log ("Inital variable Values are " + varValues);
+   for (m=0; m< varValues.length; m++){
+     actualfunction = replace(actualfunction, actualVariables[m],varValues[m]);
+  }
+  var initialOutput= eval(actualfunction);
+  console.log("Initial function output is " + initialOutput);
+  
+  //Applying the Actual Gradient Descent with Debugging Console.log's
+   for (j=0; j<Iterations; j++){
+     gradient= gradientCalculator(actualfunction, actualVariables, varValues);
+     console.log("Gradient is "+gradient);
+     console.log("The Variable Values before the gradient is: " + varValues);
+     for(k=0;k<varValues.length; k++){
+          varValues[k]= parseFloat(varValues[k])-parseFloat(gradient[k]);
+        }
+      console.log("The Variable Values after the gradient is: "+ varValues);
+    }
+    
+  //Calculating the Overall Descent
+       console.log("The Final Variable Values are: " + varValues);
+       actualfunction = TrueActualFunction;
+       for (l=0; l<actualVariables.length; l++){
+       actualfunction= replace(actualfunction,actualVariables[l],varValues[l]);
+      }
+       finalOutput = eval(actualfunction);
+       console.log("The Final function output is " + finalOutput);
+       var overallDescent = initialOutput-finalOutput;
+       console.log("The Total Descent is " + overallDescent);
+    }
+//Gradient Ascent Function 
+function gradAscent(){
+  //Creating Initial Values of the Variables and Finding the Initial Function Ouput Value
+   varValues= CreateVarValues (actualVariables, varValues);
+   actualfunction = TrueActualFunction;
+   console.log ("Inital variable Values are " + varValues);
+   for (m=0; m< varValues.length; m++){
+     actualfunction = replace(actualfunction, actualVariables[m],varValues[m]);
+  }
+  var initialOutput= eval(actualfunction);
+  console.log("Initial function output is " + initialOutput);
+  
+   //The Actual Gradient Ascent
+   for (j=0; j<Iterations; j++){
+     gradient= gradientCalculator(actualfunction, actualVariables, varValues);
+      console.log("Gradient is "+gradient);
+     //console.log("The Variable Values before the gradient is: " + varValues);
+     for(k=0;k<varValues.length; k++){
+          varValues[k]= parseFloat(varValues[k])+parseFloat(gradient[k]);
+        }
+     console.log("The Variable Values after the gradient is: "+ varValues);
+    }
+      
+    //Calculating the Total Ascent
+      console.log("The Final Variable Values are: " + varValues);
+       actualfunction = TrueActualFunction;
+       for (l=0; l<actualVariables.length; l++){
+       actualfunction= replace(actualfunction,actualVariables[l],varValues[l]);
+      }
+       finalOutput = eval(actualfunction);
+       console.log("The Final function output is " + finalOutput);
+       var overallAscent = finalOutput-initialOutput;
+       console.log("The Total Ascent is " + overallAscent);
+    }
+  //This function controls the amount of Trial of Gradient Descents, Putting the Result and the Variable Values into an array  
+  function gradDescentTrials(){
+    for (n=0; n<Trials; n++){
+      console.log("\n" + "\n" + "\n" +"\n" +"\n" +"\n" + "Ran Gradent Descent with n = " +n + "\n" + "\n" + "\n" + "\n" + "\n" +"\n");
+      gradDescent();
+      insertItem(minimumOutputs,n,finalOutput);
+      insertItem(variablesValsForMin,n,varValues);
+    }
+  }
+  
+  //This function controls the amount of Trial of Gradient Ascents, Putting the Result and the Variable Values into an array   
+  function gradAscentTrials (){
+    for (o=0; o<Trials; o++){
+      console.log("\n" + "\n" + "\n" +"\n" +"\n" +"\n" + "Ran Gradent Ascent with o = " +o + "\n" + "\n" + "\n" + "\n" + "\n" +"\n");
+      gradAscent();
+      insertItem(maximumOutputs,o,finalOutput);
+      insertItem(variablesValsForMax,o,varValues);
+    }
+  }
+  //This finds the Global Extrema from the Local Extrema with The Variable Values
+  function GlobalExtrema(){
+    console.log("Here are the Minimum Function Outputs " + minimumOutputs);
+    console.log("Here are the Minimum Output Variables " + variablesValsForMin);
+    console.log("Here are the Maximum Function Outputs " + maximumOutputs);
+    console.log("Here are the Maximum Output Variables " + variablesValsForMax);
+    globalMinimum=Math.min.apply(null, minimumOutputs);
+    globalMinIndex= findIndexOf(minimumOutputs,globalMinimum);
+    globalMinVarVals= variablesValsForMin[globalMinIndex];
+    globalMaximum=Math.max.apply(null, maximumOutputs);
+    globalMaxIndex= findIndexOf(maximumOutputs,globalMaximum);
+    globalMaxVarVals= variablesValsForMax[globalMaxIndex];
+    console.log("The Global Minimum is " + globalMinimum);
+    console.log("The index of the global minimum at is " + globalMinIndex);
+    console.log("The Values of the Variables at this point is " + globalMinVarVals);
+    console.log("The Global Maximum is " + globalMaximum);
+    console.log("The Index of the global maximum at this point is " + globalMaxIndex);
+    console.log("The Values of the Variables at this point is " + globalMaxVarVals);
+}
+function checkMaxExist(array){
+  for (r =0; r<array.length; r++){
+    if (Math.abs(array[r])>Range){
+      maximumString="Gradient Ascent cannot find a maximum on this domain, check endpoints";
+      pranav= true;
+    }
+    else{console.log("check");}
+  }
+}
+function checkMinExist(array){
+  for (r =0; r<array.length; r++){
+    if (Math.abs(array[r])>Range){
+      minimumString="Gradient Descent cannot find a minimum on this domain, check endpoints";
+      pranav= true;
+    }
+    else{console.log("check");}
+  }
+}
+//This Function Sets the TextAreas with the Global Extrema and where they occur
+function setOutputs(){
+  checkMinExist(globalMinVarVals);
+  if (pranav){pranav=false;}
+  else{
+  minimumString="Minimum: " + globalMinimum + " at" + "\n";
+  for (q=0; q<globalMinVarVals.length ; q++){
+    minimumString=minimumString + actualVariables[q] +" = " + globalMinVarVals [q] + ",\n";
+  }}
+  console.log("The Minimum String is "+ minimumString);
+  setText("GlobalMinText",minimumString);
+  
+  checkMaxExist(globalMaxVarVals);
+  if(pranav){pranav= false}
+  else{maximumString="Maximum: " + globalMaximum + " at" + "\n";
+  for (q=0; q<globalMaxVarVals.length ; q++){
+    maximumString=maximumString + actualVariables[q] +" = " + globalMaxVarVals [q] + ",\n";
+  }}
+  console.log("The Maximum String is " +maximumString);
+  setText("GlobalMaxText",maximumString);
+}
+function reset(){
+  setText("text_input3","");
+  setText("text_input2","");
+  setText("text_input5","");
+  setText("text_input6","");
+  setText("text_input4","");
+  setText("function","");
+  setText("GlobalMinText","");
+  setText("GlobalMaxText","");
+}
+ 
+//Actual Program
+setScreen("screen3");
+onEvent("button1", "click", function (){
+    getInputs();
+    gradDescentTrials();
+    gradAscentTrials();
+    GlobalExtrema();
+    setScreen("screen2");
+    setOutputs();
+  });
+  onEvent("Recalculate","click", function (){
+    reset();
+    setScreen("screen1");
+  });
+  onEvent("Start","click", function (){
+    setScreen("screen1");
+  });
